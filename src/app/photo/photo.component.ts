@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import * as Tesseract from 'tesseract.js'
 
 @Component({
   selector: 'app-photo',
@@ -18,6 +19,7 @@ export class PhotoComponent implements OnInit {
 
 
   onClick() {
+    let component = this;
     //this.enableCapture = !(this.enableCapture);
     const video = <any>document.getElementsByTagName('video')[0];
     const canvas = <any>document.getElementsByName('canvas')[0];
@@ -45,12 +47,21 @@ export class PhotoComponent implements OnInit {
     var img = new Image;
     img.src = image;
     img.onload = function () {
-      testCanvas.getContext('2d').drawImage(img, 0, 0);
+      //video.width / 4, video.height/2, video.width / 2, video.height/8
+      testCanvas.getContext('2d').drawImage(img, img.width/4, img.height/2,img.width/2,img.height/8,0,0,img.width/2,img.height/8);
+      image = testCanvas.toDataURL('image/jpeg',1);
+      component.analyzeImage(image);
       //component.log= ""+window.orientation;
     }
+    //const vc = document.getElementById('videocomponent');
+    //const mediastreamTrack = vc.localstream.getVideoTracks()[0];
+
+    /*Tesseract.recognize(image)
+         .progress(function  (p) { console.log('progress', p)    })
+         .then(function (result) { console.log('result', result) })*/
 
 
-    this.analyzeImage(image);
+    //this.analyzeImage(image);
     //this.analyzeImage();
   }
 
@@ -62,6 +73,10 @@ export class PhotoComponent implements OnInit {
     video.height = video.width * ratio;
     canvas.height = video.height;
     canvas.width = video.width * 2;
+    const ctx = canvas.getContext('2d');
+
+    ctx.strokeStyle = "#FF0000";
+    ctx.strokeRect(video.width / 4, video.height/2, video.width / 2, video.height/8);
 
 
     const tCanvas = <any>document.getElementById('testCanvas');

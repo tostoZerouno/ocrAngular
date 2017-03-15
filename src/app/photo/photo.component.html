@@ -1,7 +1,7 @@
 <h1 id="text">{{text}}</h1>
 <div (window:resize)="onResize()"  (document:load)="onResize()">
     <canvas id="videoCanvas" name="videoCanvas" class="videoCanvas" (click)="onClick()"></canvas>
-    <app-video (stop)="videoButtonClick($event)"></app-video>
+    <app-video id="videocomponent" (stop)="videoButtonClick($event)"></app-video>
 </div>
 <canvas name="canvas" id="canvas" style="display:none;"></canvas>
 <!--<button id="take" (click)="onClick()">Take a photo</button><br />-->

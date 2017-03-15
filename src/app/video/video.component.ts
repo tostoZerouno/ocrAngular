@@ -13,7 +13,7 @@ export class VideoComponent implements OnInit {
   videoSelect = (<HTMLSelectElement>document.getElementsByName("videoSelect")[0]);
   vid;
   localstream;
-  bottone = "Ferma il Video"
+  bottone = "Ferma il Video";
 
   constructor() { }
 
@@ -67,7 +67,7 @@ export class VideoComponent implements OnInit {
           _video.src = window.URL.createObjectURL(stream);
           console.log(_video.src);
           this.localstream = stream;
-          _video.load();
+          _video.load();          
 
         })
     }
