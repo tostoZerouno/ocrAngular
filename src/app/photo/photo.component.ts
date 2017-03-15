@@ -13,6 +13,7 @@ export class PhotoComponent implements OnInit {
   log = "";
   faces = {};
   faceToPerson = {};
+  orizzontale = true;
 
   constructor() { }
 
@@ -48,7 +49,11 @@ export class PhotoComponent implements OnInit {
     img.src = image;
     img.onload = function () {
       //video.width / 4, video.height/2, video.width / 2, video.height/8
-      testCanvas.getContext('2d').drawImage(img, img.width/4, img.height/2,img.width/2,img.height/8,0,0,img.width/2,img.height/8);
+      if(component.orizzontale){
+        testCanvas.getContext('2d').drawImage(img, img.width/4, img.height/2,img.width/2,img.height/8,0,0,img.width/2,img.height/8);
+      }else{
+        testCanvas.getContext('2d').drawImage(img, img.width/2, img.height/4,img.width/8,img.height/2,0,0,img.width/8,img.height/2);
+      }
       image = testCanvas.toDataURL('image/jpeg',1);
       component.analyzeImage(image);
       //component.log= ""+window.orientation;
@@ -68,15 +73,23 @@ export class PhotoComponent implements OnInit {
   onResize() {
     const video = <any>document.getElementsByTagName('video')[0];
     const canvas = <any>document.getElementsByName('videoCanvas')[0];
-    video.width = parent.innerWidth / 2;
+    video.width = parent.innerWidth;
     var ratio = video.videoHeight / video.videoWidth;
     video.height = video.width * ratio;
     canvas.height = video.height;
-    canvas.width = video.width * 2;
+    canvas.width = video.width;
     const ctx = canvas.getContext('2d');
 
+    this.orizzontale = ratio<1;
+    //console.log(this.orizzontale);
+
     ctx.strokeStyle = "#FF0000";
-    ctx.strokeRect(video.width / 4, video.height/2, video.width / 2, video.height/8);
+    if(this.orizzontale){
+      ctx.strokeRect(video.width / 4, video.height/2, video.width / 2, video.height/8);
+    }else{
+      ctx.strokeRect(video.width / 2, video.height/4, video.width / 8, video.height/2);
+    }
+    
 
 
     const tCanvas = <any>document.getElementById('testCanvas');
