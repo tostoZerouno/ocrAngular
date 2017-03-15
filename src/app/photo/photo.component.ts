@@ -14,6 +14,7 @@ export class PhotoComponent implements OnInit {
   faces = {};
   faceToPerson = {};
   orizzontale = true;
+  rettangolo;
 
   constructor() { }
 
@@ -48,12 +49,11 @@ export class PhotoComponent implements OnInit {
     var img = new Image;
     img.src = image;
     img.onload = function () {
-      //video.width / 4, video.height/2, video.width / 2, video.height/8
-      if(component.orizzontale){
-        testCanvas.getContext('2d').drawImage(img, img.width/4, img.height/2,img.width/2,img.height/8,0,0,img.width/2,img.height/8);
-      }else{
-        testCanvas.getContext('2d').drawImage(img, img.width/2, img.height/4,img.width/8,img.height/2,0,0,img.width/8,img.height/2);
-      }
+      //this.rettangolo.x, this.rettangolo.y, this.rettangolo.w, this.rettangolo.h
+    testCanvas.getContext('2d').drawImage(img, img.width*component.rettangolo.x, img.height*component.rettangolo.y,
+     img.width*component.rettangolo.w, img.height*component.rettangolo.h,
+     0,0,img.width*component.rettangolo.w, img.height*component.rettangolo.h);
+    
       image = testCanvas.toDataURL('image/jpeg',1);
       component.analyzeImage(image);
       //component.log= ""+window.orientation;
@@ -84,12 +84,16 @@ export class PhotoComponent implements OnInit {
     //console.log(this.orizzontale);
 
     ctx.strokeStyle = "#FF0000";
-    if(this.orizzontale){
-      ctx.strokeRect(video.width / 4, video.height/2, video.width / 2, video.height/8);
-    }else{
-      ctx.strokeRect(video.width / 2, video.height/4, video.width / 8, video.height/2);
-    }
     
+    if(this.orizzontale){
+      let rettangolo = {x : (1-1/1.8)/2, y: (1-1/10)/2, w: 1 / 1.8, h: 1 / 10};
+      this.rettangolo = rettangolo;
+      
+    }else{
+      let rettangolo = {x : (1-1/10)/2, y:  (1-1/1.8)/2, w: 1 / 10, h: 1 / 1.8};
+      this.rettangolo = rettangolo;
+    }
+    ctx.strokeRect(video.width*this.rettangolo.x, video.height*this.rettangolo.y, video.width*this.rettangolo.w, video.height*this.rettangolo.h);
 
 
     const tCanvas = <any>document.getElementById('testCanvas');
