@@ -54,12 +54,18 @@ export class PhotoComponent implements OnInit {
     var img = new Image;
     img.src = image;
     img.onload = function () {
+      var h = Math.max(50,img.width * component.rettangolo.h);
+      var w = Math.max(50,img.width * component.rettangolo.w);
       //this.rettangolo.x, this.rettangolo.y, this.rettangolo.w, this.rettangolo.h
-      testCanvas.width = img.width * component.rettangolo.w;
-      testCanvas.height = img.height * component.rettangolo.h;
-      testCanvas.getContext('2d').drawImage(img, img.width * component.rettangolo.x, img.height * component.rettangolo.y,
+      testCanvas.width = w;
+      //testCanvas.height = img.height * component.rettangolo.h;
+      testCanvas.height = h;
+      /*testCanvas.getContext('2d').drawImage(img, img.width * component.rettangolo.x, img.height * component.rettangolo.y,
         img.width * component.rettangolo.w, img.height * component.rettangolo.h,
-        0, 0, img.width * component.rettangolo.w, img.height * component.rettangolo.h);
+        0, 0, img.width * component.rettangolo.w, img.height * component.rettangolo.h);*/
+        testCanvas.getContext('2d').drawImage(img, img.width * component.rettangolo.x, img.height * component.rettangolo.y,
+        w, h,
+        0, 0, w, h);
 
       var amount = component.bright;
       //testCanvas.setAttribute('style', 'filter:brightness(' + amount + '); -webkit-filter:brightness(' + amount + '); -moz-filter:brightness(' + amount + ')');
@@ -118,20 +124,24 @@ export class PhotoComponent implements OnInit {
     const ctx = canvas.getContext('2d');
 
     this.orizzontale = (ratio < 1);
+    
     //console.log(this.orizzontale);
 
     ctx.strokeStyle = "#FF0000";
 
-    if (this.orizzontale) {
+    /*if (this.orizzontale) {
       let rettangolo = { x: (1 - 1 / 1.8) / 2, y: (1 - 1 / 8) / 2, w: 1 / 1.8, h: 1 / 8 };
       this.rettangolo = rettangolo;
 
     } else {
-      let rettangolo = { x: (1 - 1 / 8) / 2, y: (1 - 1 / 1.8) / 2, w: 1 / 10, h: 1 / 1.8 };
+      let rettangolo = { x: (1 - 1 / 8) / 2, y: (1 - 1 / 1.8) / 2, w: 1 / 8, h: 1 / 1.8 };
       this.rettangolo = rettangolo;
     }
-    ctx.strokeRect(video.width * this.rettangolo.x, video.height * this.rettangolo.y, video.width * this.rettangolo.w, video.height * this.rettangolo.h);
-
+    
+    ctx.strokeRect(video.width * this.rettangolo.x, video.height * this.rettangolo.y, video.width * this.rettangolo.w, video.height * this.rettangolo.h);*/
+    let rettangolo = { x: (1 - 1 / 1.6) / 2, y: (1 - 1 / 8) / 2, w: 1 / 1.6, h: 1 / 12 };
+    this.rettangolo = rettangolo;
+    ctx.strokeRect(video.width * this.rettangolo.x, video.height * this.rettangolo.y, video.width * this.rettangolo.w, video.width * this.rettangolo.h);
 
     const tCanvas = <any>document.getElementById('testCanvas');
     tCanvas.width = video.videoWidth;
