@@ -1,5 +1,5 @@
 <h1 id="text">{{text}}</h1>
-<div (window:resize)="onResize()"  (document:load)="onResize()">
+<div (window:resize)="onResize()"  (document:load)="onResize()" id="video-container">
     <canvas id="videoCanvas" name="videoCanvas" class="videoCanvas" (click)="onClick()"></canvas>
     <app-video id="videocomponent" (stop)="videoButtonClick($event)"></app-video>
 </div>
@@ -7,6 +7,8 @@
 <!--<button id="take" (click)="onClick()">Take a photo</button><br />-->
 <!--<input type="range" [ngModel]="range" min="0" max="5" step=".01" (ngModelChange)="setBright($event)">
 <input type="range" [ngModel]="range" min="0" max="5" step=".01" (ngModelChange)="setContrast($event)">-->
+<input id="h" type="range" class="vertical-range" [ngModel]="range" min="0" max="12" step=".01" value="1" (ngModelChange)="setH($event)">
+<input type="range" [ngModel]="range" min="0" max="1.6" step=".01" value= "1.2" (ngModelChange)="setW($event)">
 <p name="description">{{description}}</p>
 <p>{{log}}</p>
 <canvas id="testCanvas"></canvas>

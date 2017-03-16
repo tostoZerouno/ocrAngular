@@ -13,10 +13,10 @@ export class PhotoComponent implements OnInit {
   faces = {};
   faceToPerson = {};
   orizzontale = true;
-  rettangolo;
+  rettangolo = { x: (1 - 1 / 1.6) / 2, y: (1 - 1 / 8) / 2, w: 1 / 1.6, h: 1 / 12 };
   bright = 0.5;
   contrast = 0.5;
-
+  
   constructor() { }
 
 
@@ -63,7 +63,7 @@ export class PhotoComponent implements OnInit {
     var img = new Image;
     img.src = image;
     img.onload = function () {
-      var h = Math.max(50, img.width * component.rettangolo.h);
+      var h = Math.max(50, img.height * component.rettangolo.h);
       var w = Math.max(50, img.width * component.rettangolo.w);
 
       testCanvas.width = w;
@@ -105,7 +105,7 @@ export class PhotoComponent implements OnInit {
   onResize() {
     const video = <any>document.getElementsByTagName('video')[0];
     const canvas = <any>document.getElementsByName('videoCanvas')[0];
-    video.width = parent.innerWidth;
+    video.width = parent.innerWidth*0.8;
     var ratio = video.videoHeight / video.videoWidth;
     video.height = video.width * ratio;
     canvas.height = video.height;
@@ -116,13 +116,17 @@ export class PhotoComponent implements OnInit {
 
     ctx.strokeStyle = "#FF0000";
 
-    let rettangolo = { x: (1 - 1 / 1.6) / 2, y: (1 - 1 / 8) / 2, w: 1 / 1.6, h: 1 / 12 };
-    this.rettangolo = rettangolo;
-    ctx.strokeRect(video.width * this.rettangolo.x, video.height * this.rettangolo.y, video.width * this.rettangolo.w, video.width * this.rettangolo.h);
+    ctx.strokeRect(video.width * this.rettangolo.x, video.height * this.rettangolo.y,
+     video.width * this.rettangolo.w, video.height * this.rettangolo.h);
 
     const tCanvas = <any>document.getElementById('testCanvas');
     tCanvas.width = video.videoWidth;
     tCanvas.height = video.videoHeight;
+
+    var vr = <any>document.getElementById("h");
+    var vc = <any>document.getElementById("video-container");
+    console.log(vc);
+    vr.setAttribute('style','top:'+video.height/2+'px; left:'+video.width*1.1+'px');
 
   }
 
@@ -260,6 +264,21 @@ export class PhotoComponent implements OnInit {
 
 
   }*/
+  setH(value){
+    this.clearCanvas();
+    this.rettangolo.y = (1 - 1 / 12*value) / 2;
+    this.rettangolo.h = 1 / 12*value;
+    this.onResize();
+
+  }
+
+   setW(value){
+    this.clearCanvas();
+    this.rettangolo.x = (1 - 1 / 1.6*value) / 2 ;
+    this.rettangolo.w = 1 / 1.6 *value;
+    this.onResize();
+
+  }
 
   printLog(text) {
     this.log = text;
