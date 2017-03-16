@@ -86,8 +86,12 @@ export class PhotoComponent implements OnInit {
         if (out) {
           var nuovo = text[0].replace(re, "$1|$3|$5|$7|$9|$11");
           console.log(nuovo.toUpperCase());
+          component.printLog(nuovo.toUpperCase());
+          const button = document.getElementsByTagName('button')[0];
+          button.click();
+          //video.setAttribute('style', 'display:none');
         }else{
-          component.onClick();
+          setTimeout(()=>component.onClick(),1000);
         }
         
 
@@ -220,6 +224,7 @@ export class PhotoComponent implements OnInit {
   videoButtonClick(event) {
     this.clearCanvas();
     console.log(event);
+    setTimeout(()=>{this.onResize()},1000);
     if (event == "stop") {
       this.enableCapture = false;
     }
