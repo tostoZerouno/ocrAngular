@@ -26,7 +26,7 @@ export class PhotoComponent implements OnInit {
 
     const start = "^.*";
     const first = "([A-Z]{3})";
-    const pipe = "(I|\\||l|\\\\|\\/|i|1|J|\\[|\\]|j)";
+    const pipe = "(I|\\||l|\\\\|\\/|i|1|J|\\[|\\]|j|\\s\\')";
     const C = "(.)";
     const IT = "(.{2})";
     const anno = "([0-9]{4})";
