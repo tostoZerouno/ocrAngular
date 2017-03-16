@@ -23,6 +23,19 @@ export class PhotoComponent implements OnInit {
 
   onClick() {
     let component = this;
+
+    const start = "^.*";
+    const first = "([A-Z]{3})";
+    const pipe = "(I|\\||l|\\\\|\\/|i|1|J|\\[|\\]|j)";
+    const C = "(.)";
+    const IT = "(.{2})";
+    const anno = "([0-9]{4})";
+    const tre = "([0-9]{3})";
+    const nove = "([0-9]{8})";
+    const end = ".*$";
+    const rest = start + first + pipe + C + pipe + IT + pipe + anno + pipe + tre + pipe + nove + end;
+    const re = new RegExp(rest);
+
     //this.enableCapture = !(this.enableCapture);
     const video = <any>document.getElementsByTagName('video')[0];
     const canvas = <any>document.getElementById('canvas');
@@ -52,7 +65,7 @@ export class PhotoComponent implements OnInit {
     img.onload = function () {
       var h = Math.max(50, img.width * component.rettangolo.h);
       var w = Math.max(50, img.width * component.rettangolo.w);
-      
+
       testCanvas.width = w;
       testCanvas.height = h;
       testCanvas.getContext('2d').drawImage(img, img.width * component.rettangolo.x, img.height * component.rettangolo.y,
@@ -64,10 +77,11 @@ export class PhotoComponent implements OnInit {
       rapp = Math.min(rapp, 1);
 
       image = testCanvas.toDataURL('image/jpeg', rapp);
-     
+
       component.analyzeImage(image).then(text => {
         console.log(text[0]);
-        var re = /^.*([A-Z]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)(.)(I|\||l|\\|\/|i|1|J|\[|\]|j)(.{2})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{4})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{8}).*$/;
+        //console.log(rest);
+        //var re = /^.*([A-Z]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)(.)(I|\||l|\\|\/|i|1|J|\[|\]|j)(.{2})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{4})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{8}).*$/;
         var out = re.test(text[0]);
         console.log(text + " " + out);
         if (out) {
