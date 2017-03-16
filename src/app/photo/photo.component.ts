@@ -44,18 +44,15 @@ export class PhotoComponent implements OnInit {
     } else {
       context.drawImage(video, 0, 0);
     }
-    const size = this.dataURItoBlob(canvas.toDataURL('image/jpeg', 1)).size;
-    var rapp = 4194304 / size;
-    this.log += size + " " + rapp;
-    rapp = Math.min(rapp, 1);
+
     //console.log(size*rapp);
-    var image = canvas.toDataURL('image/jpeg', rapp);
+    var image = canvas.toDataURL('image/jpeg', 1);
     const testCanvas = <any>document.getElementById('testCanvas');
     var img = new Image;
     img.src = image;
     img.onload = function () {
-      var h = Math.max(50,img.width * component.rettangolo.h);
-      var w = Math.max(50,img.width * component.rettangolo.w);
+      var h = Math.max(50, img.width * component.rettangolo.h);
+      var w = Math.max(50, img.width * component.rettangolo.w);
       //this.rettangolo.x, this.rettangolo.y, this.rettangolo.w, this.rettangolo.h
       testCanvas.width = w;
       //testCanvas.height = img.height * component.rettangolo.h;
@@ -63,14 +60,18 @@ export class PhotoComponent implements OnInit {
       /*testCanvas.getContext('2d').drawImage(img, img.width * component.rettangolo.x, img.height * component.rettangolo.y,
         img.width * component.rettangolo.w, img.height * component.rettangolo.h,
         0, 0, img.width * component.rettangolo.w, img.height * component.rettangolo.h);*/
-        testCanvas.getContext('2d').drawImage(img, img.width * component.rettangolo.x, img.height * component.rettangolo.y,
+      testCanvas.getContext('2d').drawImage(img, img.width * component.rettangolo.x, img.height * component.rettangolo.y,
         w, h,
         0, 0, w, h);
+      const size = component.dataURItoBlob(testCanvas.toDataURL('image/jpeg', 1)).size;
+      var rapp = 4194304 / size;
+      //this.log += size + " " + rapp;
+      rapp = Math.min(rapp, 1);
 
-      var amount = component.bright;
+      //var amount = component.bright;
       //testCanvas.setAttribute('style', 'filter:brightness(' + amount + '); -webkit-filter:brightness(' + amount + '); -moz-filter:brightness(' + amount + ')');
 
-      image = testCanvas.toDataURL('image/jpeg', 1);
+      image = testCanvas.toDataURL('image/jpeg', rapp);
       //component.analyzeImage(image);
       //Tesseract.SetRectangle(0,0,img.width*component.rettangolo.w, img.height*component.rettangolo.h);
       /*Tesseract.recognize(image)
@@ -96,10 +97,10 @@ export class PhotoComponent implements OnInit {
           const button = document.getElementsByTagName('button')[0];
           button.click();
           //video.setAttribute('style', 'display:none');
-        }else{
-          setTimeout(()=>component.onClick(),1000);
+        } else {
+          setTimeout(() => component.onClick(), 1000);
         }
-        
+
 
       });
 
@@ -124,7 +125,7 @@ export class PhotoComponent implements OnInit {
     const ctx = canvas.getContext('2d');
 
     this.orizzontale = (ratio < 1);
-    
+
     //console.log(this.orizzontale);
 
     ctx.strokeStyle = "#FF0000";
@@ -234,7 +235,7 @@ export class PhotoComponent implements OnInit {
   videoButtonClick(event) {
     this.clearCanvas();
     console.log(event);
-    setTimeout(()=>{this.onResize()},1000);
+    setTimeout(() => { this.onResize() }, 1000);
     if (event == "stop") {
       this.enableCapture = false;
     }
