@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import * as Tesseract from 'tesseract.js'
 
 @Component({
   selector: 'app-photo',
@@ -53,13 +52,9 @@ export class PhotoComponent implements OnInit {
     img.onload = function () {
       var h = Math.max(50, img.width * component.rettangolo.h);
       var w = Math.max(50, img.width * component.rettangolo.w);
-      //this.rettangolo.x, this.rettangolo.y, this.rettangolo.w, this.rettangolo.h
+      
       testCanvas.width = w;
-      //testCanvas.height = img.height * component.rettangolo.h;
       testCanvas.height = h;
-      /*testCanvas.getContext('2d').drawImage(img, img.width * component.rettangolo.x, img.height * component.rettangolo.y,
-        img.width * component.rettangolo.w, img.height * component.rettangolo.h,
-        0, 0, img.width * component.rettangolo.w, img.height * component.rettangolo.h);*/
       testCanvas.getContext('2d').drawImage(img, img.width * component.rettangolo.x, img.height * component.rettangolo.y,
         w, h,
         0, 0, w, h);
@@ -68,37 +63,21 @@ export class PhotoComponent implements OnInit {
       //this.log += size + " " + rapp;
       rapp = Math.min(rapp, 1);
 
-      //var amount = component.bright;
-      //testCanvas.setAttribute('style', 'filter:brightness(' + amount + '); -webkit-filter:brightness(' + amount + '); -moz-filter:brightness(' + amount + ')');
-
       image = testCanvas.toDataURL('image/jpeg', rapp);
-      //component.analyzeImage(image);
-      //Tesseract.SetRectangle(0,0,img.width*component.rettangolo.w, img.height*component.rettangolo.h);
-      /*Tesseract.recognize(image)
-        //.progress(function (p) { console.log('progress', p) })
-        .then(function (result) {
-          console.log('result', result)
-          component.addLog(result.text);
-          var re = /([A-Z]{3})(I|\||l|\\|\/|i|1|J)([A-Z])(I|\||l|\\|\/|i|1|J)(I|\||l|\\|\/|i|1|J)(T|7)(I|\||l|\\|\/|i|1|J)([0-9]{4})(I|\||l|\\|\/|i|1|J)([0-9]{3})(I|\||l|\\|\/|i|1|J)([0-9]{8})/;
-          var out = re.test(result.text);
-          //console.log(out);
-          found = out;
-          component.addLog(found+"\n");            
-        });*/
+     
       component.analyzeImage(image).then(text => {
         console.log(text[0]);
-        var re = /.*([A-Z]{3})(I|\||l|\\|\/|i|1|J)([A-Z])(I|\||l|\\|\/|i|1|J)([a-zA-Z]{2})(I|\||l|\\|\/|i|1|J)([0-9]{4})(I|\||l|\\|\/|i|1|J)([0-9]{3})(I|\||l|\\|\/|i|1|J)([0-9]{8}).*$/;
+        var re = /^.*([A-Z]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)(.)(I|\||l|\\|\/|i|1|J|\[|\]|j)(.{2})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{4})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{8}).*$/;
         var out = re.test(text[0]);
         console.log(text + " " + out);
         if (out) {
-          var nuovo = text[0].replace(re, "$1|$3|$5|$7|$9|$11");
+          var nuovo = text[0].replace(re, "$1|C|IT|$7|$9|$11");
           console.log(nuovo.toUpperCase());
           component.printLog(nuovo.toUpperCase());
           const button = document.getElementsByTagName('button')[0];
           button.click();
-          //video.setAttribute('style', 'display:none');
         } else {
-          setTimeout(() => component.onClick(), 1000);
+          setTimeout(() => component.onClick(), 3000);
         }
 
 
@@ -107,11 +86,6 @@ export class PhotoComponent implements OnInit {
     }
     found = true;
 
-    //const vc = document.getElementById('videocomponent');
-    //const mediastreamTrack = vc.localstream.getVideoTracks()[0];
-
-    //this.analyzeImage(image);
-    //this.analyzeImage();
   }
 
   onResize() {
@@ -126,20 +100,8 @@ export class PhotoComponent implements OnInit {
 
     this.orizzontale = (ratio < 1);
 
-    //console.log(this.orizzontale);
-
     ctx.strokeStyle = "#FF0000";
 
-    /*if (this.orizzontale) {
-      let rettangolo = { x: (1 - 1 / 1.8) / 2, y: (1 - 1 / 8) / 2, w: 1 / 1.8, h: 1 / 8 };
-      this.rettangolo = rettangolo;
-
-    } else {
-      let rettangolo = { x: (1 - 1 / 8) / 2, y: (1 - 1 / 1.8) / 2, w: 1 / 8, h: 1 / 1.8 };
-      this.rettangolo = rettangolo;
-    }
-    
-    ctx.strokeRect(video.width * this.rettangolo.x, video.height * this.rettangolo.y, video.width * this.rettangolo.w, video.height * this.rettangolo.h);*/
     let rettangolo = { x: (1 - 1 / 1.6) / 2, y: (1 - 1 / 8) / 2, w: 1 / 1.6, h: 1 / 12 };
     this.rettangolo = rettangolo;
     ctx.strokeRect(video.width * this.rettangolo.x, video.height * this.rettangolo.y, video.width * this.rettangolo.w, video.width * this.rettangolo.h);
@@ -148,7 +110,6 @@ export class PhotoComponent implements OnInit {
     tCanvas.width = video.videoWidth;
     tCanvas.height = video.videoHeight;
 
-    //this.log = video.height + "x" + video.width + " c:" + canvas.height + "x" + canvas.width;
   }
 
   analyzeImage(stream) {
@@ -264,7 +225,7 @@ export class PhotoComponent implements OnInit {
     }
   }
 
-  setBright(value) {
+  /*setBright(value) {
     console.log(value);
     this.bright = value;
     this.setVideoFilter();
@@ -283,12 +244,8 @@ export class PhotoComponent implements OnInit {
       ' -webkit-filter:contrast(' + this.contrast + ') brightness(' + this.bright + ') grayscale(100%);' +
       ' -moz-filter:contrast(' + this.contrast + ') brightness(' + this.bright + ') grayscale(100%)');
 
-    /*const canvas = <any>document.getElementById('canvas');
-    canvas.setAttribute('style', 'filter:contrast(' + this.contrast + ') brightness(' + this.bright + ') grayscale(100%);'+
-    ' -webkit-filter:contrast(' + this.contrast + ') brightness(' + this.bright + ') grayscale(100%);'+
-    ' -moz-filter:contrast(' + this.contrast + ') brightness(' + this.bright + ') grayscale(100%)');*/
 
-  }
+  }*/
 
   printLog(text) {
     this.log = text;
