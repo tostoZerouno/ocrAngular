@@ -162,6 +162,7 @@ var PhotoComponent = (function () {
         this.anno = {};
         this.tre = {};
         this.nove = {};
+        this.found = false;
     }
     PhotoComponent.prototype.onClick = function () {
         this.first = {};
@@ -170,29 +171,19 @@ var PhotoComponent = (function () {
         this.anno = {};
         this.tre = {};
         this.nove = {};
-        this.cercaCodice();
+        var currentdate = new Date();
+        var datetime = "Last Sync: " + currentdate.getDate() + "/"
+            + (currentdate.getMonth() + 1) + "/"
+            + currentdate.getFullYear() + " @ "
+            + currentdate.getHours() + ":"
+            + currentdate.getMinutes() + ":"
+            + currentdate.getSeconds();
+        console.log(datetime);
+        this.found = false;
+        this.cercaCodice("");
     };
-    PhotoComponent.prototype.cercaCodice = function () {
+    PhotoComponent.prototype.cercaCodice = function (chiamante) {
         var component = this;
-        var start = "^.*";
-        var first = "([A-Z]{3})";
-        var pipe = "(I|\\||l|\\\\|\\/|i|1|J|\\[|\\]|j|\\s\\')";
-        var C = "(C)";
-        var IT = "([a-zA-Z]{2})";
-        var anno = "([0-9]{4})";
-        var tre = "([0-9]{3})";
-        var nove = "([0-9]{8})";
-        var end = ".*$";
-        var rest = start + first + pipe + C + pipe + IT + pipe + anno + pipe + tre + pipe + nove + end;
-        var re = new RegExp(rest);
-        var rest1 = start + first + pipe + C + pipe + IT + end;
-        var re1 = new RegExp(rest1);
-        var rest2 = start + C + pipe + IT + pipe + anno + end;
-        var re2 = new RegExp(rest2);
-        var rest3 = start + IT + pipe + anno + pipe + tre + end;
-        var re3 = new RegExp(rest3);
-        var rest4 = start + anno + pipe + tre + pipe + nove + end;
-        var re4 = new RegExp(rest4);
         //this.enableCapture = !(this.enableCapture);
         var video = document.getElementsByTagName('video')[0];
         var canvas = document.getElementById('canvas');
@@ -200,7 +191,6 @@ var PhotoComponent = (function () {
         canvas.height = video.videoHeight;
         var context = canvas.getContext('2d');
         //canvas.getContext('2d').drawImage(video, 0, 0);
-        var found = false;
         var count = 0;
         if (component.detectmob()) {
             //var deg = Number(window.orientation);
@@ -229,120 +219,174 @@ var PhotoComponent = (function () {
             //this.log += size + " " + rapp;
             //rapp = Math.min(rapp, 1);
             image = testCanvas.toDataURL('image/png');
+            var image2 = testCanvas.toDataURL('image/jpg', 1);
             //component.analyzeImage(image).then(text => {
-            __WEBPACK_IMPORTED_MODULE_1_tesseract_js__["recognize"](image).then(function (result) {
-                var text = [result.text.replace(/(\r\n|\n|\r)/gm, "")];
-                console.log(text);
-                component.printLog(text[0]);
-                //console.log(rest);
-                //var re = /^.*([A-Z]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)(.)(I|\||l|\\|\/|i|1|J|\[|\]|j)(.{2})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{4})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{8}).*$/;
-                var out = re.test(text[0]);
-                var out1 = re1.test(text[0]);
-                var out2 = re2.test(text[0]);
-                var out3 = re3.test(text[0]);
-                var out4 = re4.test(text[0]);
-                console.log(text + " " + out + " 1:" + out1 + " 2:" + out2 + " 3:" + out3 + " 4:" + out4);
-                if (out1) {
-                    var match = re1.exec(text[0]);
-                    var firstmatch = match[1];
-                    var Cmatch = match[3];
-                    var ITmatch = match[5];
-                    component.addFirst(firstmatch);
-                    component.addC(Cmatch);
+            if (chiamante == "tesseract" || chiamante == "") {
+                __WEBPACK_IMPORTED_MODULE_1_tesseract_js__["recognize"](image).then(function (result) {
+                    var text = [result.text.replace(/(\r\n|\n|\r)/gm, "")];
+                    component.analisiStringa(text, "tesseract");
+                });
+            }
+            if (chiamante == "API" || chiamante == "") {
+                component.analyzeImage(image2).then(function (text) {
+                    component.analisiStringa(text, "API");
+                });
+            }
+        };
+    };
+    PhotoComponent.prototype.analisiStringa = function (text, chiamante) {
+        var component = this;
+        var start = "^.*";
+        var first = "([A-Z]{3})";
+        var pipe = "(I|\\||l|\\\\|\\/|i|1|J|\\[|\\]|j|\\s\\')";
+        var C = "([A-Z])";
+        var IT = "([a-zA-Z]{2})";
+        var anno = "([0-9]{4})";
+        var tre = "([0-9]{3})";
+        var nove = "([0-9]{8})";
+        var end = ".*$";
+        var rest = start + first + pipe + C + pipe + IT + pipe + anno + pipe + tre + pipe + nove + end;
+        var re = new RegExp(rest);
+        var rest1 = start + first + pipe + C + pipe + IT + end;
+        var re1 = new RegExp(rest1);
+        var rest2 = start + C + pipe + IT + pipe + anno + end;
+        var re2 = new RegExp(rest2);
+        var rest3 = start + IT + pipe + anno + pipe + tre + end;
+        var re3 = new RegExp(rest3);
+        var rest4 = start + anno + pipe + tre + pipe + nove + end;
+        var re4 = new RegExp(rest4);
+        console.log(text);
+        component.printLog(text[0]);
+        //console.log(rest);
+        //var re = /^.*([A-Z]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)(.)(I|\||l|\\|\/|i|1|J|\[|\]|j)(.{2})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{4})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{8}).*$/;
+        var out = re.test(text[0]);
+        var out1 = re1.test(text[0]);
+        var out2 = re2.test(text[0]);
+        var out3 = re3.test(text[0]);
+        var out4 = re4.test(text[0]);
+        console.log(text + " " + out + " 1:" + out1 + " 2:" + out2 + " 3:" + out3 + " 4:" + out4);
+        if (out1) {
+            var match = re1.exec(text[0]);
+            var firstmatch = match[1];
+            var Cmatch = match[3];
+            var ITmatch = match[5];
+            component.addFirst(firstmatch);
+            component.addC(Cmatch);
+            component.addIT(ITmatch);
+        }
+        if (out2) {
+            var match = re2.exec(text[0]);
+            var Cmatch = match[1];
+            var ITmatch = match[3];
+            var annomatch = match[5];
+            if (!out1) {
+                component.addC(Cmatch);
+                component.addIT(ITmatch);
+            }
+            component.addAnno(annomatch);
+        }
+        if (out3) {
+            var match = re3.exec(text[0]);
+            var ITmatch = match[1];
+            var annomatch = match[3];
+            var trematch = match[5];
+            if (!out2) {
+                component.addAnno(annomatch);
+                if (!out1) {
                     component.addIT(ITmatch);
                 }
-                if (out2) {
-                    var match = re2.exec(text[0]);
-                    var Cmatch = match[1];
-                    var ITmatch = match[3];
-                    var annomatch = match[5];
-                    if (!out1) {
-                        component.addC(Cmatch);
-                        component.addIT(ITmatch);
-                    }
+            }
+            component.addTre(trematch);
+        }
+        if (out4) {
+            var match = re4.exec(text[0]);
+            var annomatch = match[1];
+            var trematch = match[3];
+            var novematch = match[5];
+            if (!out3) {
+                component.addTre(trematch);
+                if (!out2) {
                     component.addAnno(annomatch);
                 }
-                if (out3) {
-                    var match = re3.exec(text[0]);
-                    var ITmatch = match[1];
-                    var annomatch = match[3];
-                    var trematch = match[5];
-                    if (!out2) {
-                        component.addAnno(annomatch);
-                        if (!out1) {
-                            component.addIT(ITmatch);
-                        }
-                    }
-                    component.addTre(trematch);
+            }
+            component.addNove(novematch);
+        }
+        console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
+        if (component.gotIt()) {
+            console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
+            var max = Math.max.apply(null, Object.keys(component.first).map(function (x) { return component.first[x]; }));
+            var maxFirst = (Object.keys(component.first).filter(function (x) { return component.first[x] == max; })[0]);
+            var minmax = max;
+            max = Math.max.apply(null, Object.keys(component.C).map(function (x) { return component.C[x]; }));
+            var maxC = (Object.keys(component.C).filter(function (x) { return component.C[x] == max; })[0]);
+            if (max < minmax) {
+                minmax = max;
+            }
+            max = Math.max.apply(null, Object.keys(component.IT).map(function (x) { return component.IT[x]; }));
+            var maxIT = (Object.keys(component.IT).filter(function (x) { return component.IT[x] == max; })[0]);
+            if (max < minmax) {
+                minmax = max;
+            }
+            max = Math.max.apply(null, Object.keys(component.anno).map(function (x) { return component.anno[x]; }));
+            var maxAnno = (Object.keys(component.anno).filter(function (x) { return component.anno[x] == max; })[0]);
+            if (max < minmax) {
+                minmax = max;
+            }
+            max = Math.max.apply(null, Object.keys(component.tre).map(function (x) { return component.tre[x]; }));
+            var maxTre = (Object.keys(component.tre).filter(function (x) { return component.tre[x] == max; })[0]);
+            if (max < minmax) {
+                minmax = max;
+            }
+            max = Math.max.apply(null, Object.keys(component.nove).map(function (x) { return component.nove[x]; }));
+            var maxNove = (Object.keys(component.nove).filter(function (x) { return component.nove[x] == max; })[0]);
+            if (max < minmax) {
+                minmax = max;
+            }
+            var nuovo = maxFirst + "|" + maxC + "|" + maxIT + "|" + maxAnno + "|" + maxTre + "|" + maxNove;
+            console.log(nuovo.toUpperCase());
+            component.printLog(nuovo.toUpperCase());
+            var button = document.getElementsByTagName('button')[0];
+            if (minmax < 2) {
+                if (chiamante == "tesseract") {
+                    component.cercaCodice(chiamante);
                 }
-                if (out4) {
-                    var match = re4.exec(text[0]);
-                    var annomatch = match[1];
-                    var trematch = match[3];
-                    var novematch = match[5];
-                    if (!out3) {
-                        component.addTre(trematch);
-                        if (!out2) {
-                            component.addAnno(annomatch);
-                        }
-                    }
-                    component.addNove(novematch);
+                if (chiamante == "API") {
+                    setTimeout(function () { component.cercaCodice(chiamante); }, 3000);
                 }
-                console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
-                if (component.gotIt()) {
-                    console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
-                    var max = Math.max.apply(null, Object.keys(component.first).map(function (x) { return component.first[x]; }));
-                    var maxFirst = (Object.keys(component.first).filter(function (x) { return component.first[x] == max; })[0]);
-                    var minmax = max;
-                    max = Math.max.apply(null, Object.keys(component.C).map(function (x) { return component.C[x]; }));
-                    var maxC = (Object.keys(component.C).filter(function (x) { return component.C[x] == max; })[0]);
-                    if (max < minmax) {
-                        minmax = max;
-                    }
-                    max = Math.max.apply(null, Object.keys(component.IT).map(function (x) { return component.IT[x]; }));
-                    var maxIT = (Object.keys(component.IT).filter(function (x) { return component.IT[x] == max; })[0]);
-                    if (max < minmax) {
-                        minmax = max;
-                    }
-                    max = Math.max.apply(null, Object.keys(component.anno).map(function (x) { return component.anno[x]; }));
-                    var maxAnno = (Object.keys(component.anno).filter(function (x) { return component.anno[x] == max; })[0]);
-                    if (max < minmax) {
-                        minmax = max;
-                    }
-                    max = Math.max.apply(null, Object.keys(component.tre).map(function (x) { return component.tre[x]; }));
-                    var maxTre = (Object.keys(component.tre).filter(function (x) { return component.tre[x] == max; })[0]);
-                    if (max < minmax) {
-                        minmax = max;
-                    }
-                    max = Math.max.apply(null, Object.keys(component.nove).map(function (x) { return component.nove[x]; }));
-                    var maxNove = (Object.keys(component.nove).filter(function (x) { return component.nove[x] == max; })[0]);
-                    var nuovo = maxFirst + "|" + maxC + "|" + maxIT + "|" + maxAnno + "|" + maxTre + "|" + maxNove;
-                    console.log(nuovo.toUpperCase());
-                    component.printLog(nuovo.toUpperCase());
-                    var button = document.getElementsByTagName('button')[0];
-                    if (minmax < 3) {
-                        component.cercaCodice();
-                    }
-                    else {
-                        button.click();
-                    }
+            }
+            else {
+                if (!component.found) {
+                    var currentdate = new Date();
+                    var datetime = "Last Sync: " + currentdate.getDate() + "/"
+                        + (currentdate.getMonth() + 1) + "/"
+                        + currentdate.getFullYear() + " @ "
+                        + currentdate.getHours() + ":"
+                        + currentdate.getMinutes() + ":"
+                        + currentdate.getSeconds();
+                    console.log(datetime);
+                    component.found = true;
+                    button.click();
                 }
-                else {
-                    //setTimeout(() => component.cercaCodice(), 3000);
-                    component.cercaCodice();
-                }
-                /* if (out) {
-                   var nuovo = text[0].replace(re, "$1|C|IT|$7|$9|$11");
-                   console.log(nuovo.toUpperCase());
-                   component.printLog(nuovo.toUpperCase());
-                   const button = document.getElementsByTagName('button')[0];
-                   button.click();
-                 } else {
-                   setTimeout(() => component.cercaCodice(), 3000);
-                 }*/
-            });
-        };
-        found = true;
+            }
+        }
+        else {
+            //setTimeout(() => component.cercaCodice(), 3000);
+            if (chiamante == "tesseract") {
+                component.cercaCodice(chiamante);
+            }
+            if (chiamante == "API") {
+                setTimeout(function () { component.cercaCodice(chiamante); }, 3000);
+            }
+        }
+        /* if (out) {
+           var nuovo = text[0].replace(re, "$1|C|IT|$7|$9|$11");
+           console.log(nuovo.toUpperCase());
+           component.printLog(nuovo.toUpperCase());
+           const button = document.getElementsByTagName('button')[0];
+           button.click();
+         } else {
+           setTimeout(() => component.cercaCodice(), 3000);
+         }*/
     };
     PhotoComponent.prototype.onResize = function () {
         var video = document.getElementsByTagName('video')[0];
@@ -361,7 +405,7 @@ var PhotoComponent = (function () {
         tCanvas.height = video.videoHeight;
         var vr = document.getElementById("h");
         var vc = document.getElementById("video-container");
-        console.log(vc);
+        //console.log(vc);
         vr.setAttribute('style', 'top:' + video.height / 2 + 'px; left:' + video.width * 1.1 + 'px');
     };
     PhotoComponent.prototype.analyzeImage = function (stream) {
@@ -508,10 +552,12 @@ var PhotoComponent = (function () {
         this.addMatch("first", match);
     };
     PhotoComponent.prototype.addC = function (match) {
-        this.addMatch("C", match);
+        //this.addMatch("C", match);
+        this.addMatch("C", "C");
     };
     PhotoComponent.prototype.addIT = function (match) {
-        this.addMatch("IT", match);
+        //this.addMatch("IT", match.toUpperCase());
+        this.addMatch("IT", "IT");
     };
     PhotoComponent.prototype.addAnno = function (match) {
         this.addMatch("anno", match);
