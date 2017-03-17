@@ -16,18 +16,36 @@ export class PhotoComponent implements OnInit {
   rettangolo = { x: (1 - 1 / 1.6) / 2, y: (1 - 1 / 8) / 2, w: 1 / 1.6, h: 1 / 12 };
   bright = 0.5;
   contrast = 0.5;
-  
+  first = {};
+  C = {};
+  IT = {};
+  anno = {};
+  tre = {};
+  nove = {};
+
   constructor() { }
 
 
-
   onClick() {
+
+    this.first = {};
+    this.C = {};
+    this.IT = {};
+    this.anno = {};
+    this.tre = {};
+    this.nove = {};
+
+    this.cercaCodice();
+
+  }
+
+  cercaCodice() {
     let component = this;
 
     const start = "^.*";
     const first = "([A-Z]{3})";
     const pipe = "(I|\\||l|\\\\|\\/|i|1|J|\\[|\\]|j|\\s\\')";
-    const C = "(.)";
+    const C = "(C)";
     const IT = "(.{2})";
     const anno = "([0-9]{4})";
     const tre = "([0-9]{3})";
@@ -35,6 +53,19 @@ export class PhotoComponent implements OnInit {
     const end = ".*$";
     const rest = start + first + pipe + C + pipe + IT + pipe + anno + pipe + tre + pipe + nove + end;
     const re = new RegExp(rest);
+
+    const rest1 = start + first + pipe + C + pipe + IT + end;
+    const re1 = new RegExp(rest1);
+
+    const rest2 = start + C + pipe + IT + pipe + anno + end;
+    const re2 = new RegExp(rest2);
+
+    const rest3 = start + IT + pipe + anno + pipe + tre + end;
+    const re3 = new RegExp(rest3);
+
+    const rest4 = start + anno + pipe + tre + pipe + nove + end;
+    const re4 = new RegExp(rest4);
+
 
     //this.enableCapture = !(this.enableCapture);
     const video = <any>document.getElementsByTagName('video')[0];
@@ -83,29 +114,112 @@ export class PhotoComponent implements OnInit {
         //console.log(rest);
         //var re = /^.*([A-Z]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)(.)(I|\||l|\\|\/|i|1|J|\[|\]|j)(.{2})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{4})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{8}).*$/;
         var out = re.test(text[0]);
-        console.log(text + " " + out);
-        if (out) {
+        var out1 = re1.test(text[0]);
+        var out2 = re2.test(text[0]);
+        var out3 = re3.test(text[0]);
+        var out4 = re4.test(text[0]);
+        console.log(text + " " + out + " 1:" + out1 + " 2:" + out2 + " 3:" + out3 + " 1:" + out4);
+
+        if (out1) {
+          let match = re1.exec(text[0]);
+          let firstmatch = match[1];
+          let Cmatch = match[3];
+          let ITmatch = match[5];
+          component.addFirst(firstmatch);
+          component.addC(Cmatch);
+          component.addIT(ITmatch);
+        }
+        if (out2) {
+          let match = re2.exec(text[0]);
+          let Cmatch = match[1];
+          let ITmatch = match[3];
+          let annomatch = match[5];
+          if (!out1) {
+            component.addC(Cmatch);
+            component.addIT(ITmatch);
+          }
+          component.addAnno(annomatch);
+        }
+        if (out3) {
+          let match = re3.exec(text[0]);
+          let ITmatch = match[1];
+          let annomatch = match[3];
+          let trematch = match[5];
+          if (!out2) {
+            component.addAnno(annomatch);
+            if (!out1) {
+              component.addIT(ITmatch);
+            }
+          }
+          component.addTre(trematch);
+        }
+
+        if (out4) {
+          let match = re4.exec(text[0]);
+          let annomatch = match[1];
+          let trematch = match[3];
+          let novematch = match[5];
+          if (!out3) {
+            component.addTre(trematch);
+            if (!out2) {
+              component.addAnno(annomatch);
+            }
+          }
+          component.addNove(novematch);
+        }
+
+        console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
+        if (component.gotIt()) {
+          console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
+          var max = Math.max.apply(null, Object.keys(component.first).map(function (x) { return component.first[x] }));
+          var maxFirst = (Object.keys(component.first).filter(function (x) { return component.first[x] == max; })[0]);
+
+          max = Math.max.apply(null, Object.keys(component.C).map(function (x) { return component.C[x] }));
+          var maxC = (Object.keys(component.C).filter(function (x) { return component.C[x] == max; })[0]);
+
+          max = Math.max.apply(null, Object.keys(component.IT).map(function (x) { return component.IT[x] }));
+          var maxIT = (Object.keys(component.IT).filter(function (x) { return component.IT[x] == max; })[0]);
+
+          max = Math.max.apply(null, Object.keys(component.anno).map(function (x) { return component.anno[x] }));
+          var maxAnno = (Object.keys(component.anno).filter(function (x) { return component.anno[x] == max; })[0]);
+
+          max = Math.max.apply(null, Object.keys(component.tre).map(function (x) { return component.tre[x] }));
+          var maxTre = (Object.keys(component.tre).filter(function (x) { return component.tre[x] == max; })[0]);
+
+          max = Math.max.apply(null, Object.keys(component.nove).map(function (x) { return component.nove[x] }));
+          var maxNove = (Object.keys(component.nove).filter(function (x) { return component.nove[x] == max; })[0]);
+
+          let nuovo =  maxFirst+"|"+maxC+"|"+maxIT+"|"+maxAnno+"|"+maxTre+"|"+maxNove;
+          console.log(nuovo.toUpperCase());
+          component.printLog(nuovo.toUpperCase());
+          const button = document.getElementsByTagName('button')[0];
+          button.click();
+
+        }else {
+          setTimeout(() => component.cercaCodice(), 3000);
+        }
+
+       /* if (out) {
           var nuovo = text[0].replace(re, "$1|C|IT|$7|$9|$11");
           console.log(nuovo.toUpperCase());
           component.printLog(nuovo.toUpperCase());
           const button = document.getElementsByTagName('button')[0];
           button.click();
         } else {
-          setTimeout(() => component.onClick(), 3000);
-        }
+          setTimeout(() => component.cercaCodice(), 3000);
+        }*/
 
 
       });
 
     }
     found = true;
-
   }
 
   onResize() {
     const video = <any>document.getElementsByTagName('video')[0];
     const canvas = <any>document.getElementsByName('videoCanvas')[0];
-    video.width = parent.innerWidth*0.8;
+    video.width = parent.innerWidth * 0.8;
     var ratio = video.videoHeight / video.videoWidth;
     video.height = video.width * ratio;
     canvas.height = video.height;
@@ -117,7 +231,7 @@ export class PhotoComponent implements OnInit {
     ctx.strokeStyle = "#FF0000";
 
     ctx.strokeRect(video.width * this.rettangolo.x, video.height * this.rettangolo.y,
-     video.width * this.rettangolo.w, video.height * this.rettangolo.h);
+      video.width * this.rettangolo.w, video.height * this.rettangolo.h);
 
     const tCanvas = <any>document.getElementById('testCanvas');
     tCanvas.width = video.videoWidth;
@@ -126,7 +240,7 @@ export class PhotoComponent implements OnInit {
     var vr = <any>document.getElementById("h");
     var vc = <any>document.getElementById("video-container");
     console.log(vc);
-    vr.setAttribute('style','top:'+video.height/2+'px; left:'+video.width*1.1+'px');
+    vr.setAttribute('style', 'top:' + video.height / 2 + 'px; left:' + video.width * 1.1 + 'px');
 
   }
 
@@ -264,18 +378,18 @@ export class PhotoComponent implements OnInit {
 
 
   }*/
-  setH(value){
+  setH(value) {
     this.clearCanvas();
-    this.rettangolo.y = (1 - 1 / 12*value) / 2;
-    this.rettangolo.h = 1 / 12*value;
+    this.rettangolo.y = (1 - 1 / 12 * value) / 2;
+    this.rettangolo.h = 1 / 12 * value;
     this.onResize();
 
   }
 
-   setW(value){
+  setW(value) {
     this.clearCanvas();
-    this.rettangolo.x = (1 - 1 / 1.6*value) / 2 ;
-    this.rettangolo.w = 1 / 1.6 *value;
+    this.rettangolo.x = (1 - 1 / 1.6 * value) / 2;
+    this.rettangolo.w = 1 / 1.6 * value;
     this.onResize();
 
   }
@@ -286,6 +400,46 @@ export class PhotoComponent implements OnInit {
 
   addLog(text) {
     this.log += text;
+  }
+
+  addFirst(match) {
+    this.addMatch("first", match);
+  }
+  addC(match) {
+    this.addMatch("C", match);
+  }
+  addIT(match) {
+    this.addMatch("IT", match);
+  }
+  addAnno(match) {
+    this.addMatch("anno", match);
+  }
+  addTre(match) {
+    this.addMatch("tre", match);
+  }
+  addNove(match) {
+    this.addMatch("nove", match);
+  }
+
+  addMatch(field, match) {
+    if (this[field][match]) {
+      this[field][match] = this[field][match] + 1;
+    } else {
+      this[field][match] = 1;
+    }
+
+  }
+
+  gotIt() {
+    //console.log(Object.getOwnPropertyNames(this.first).length > 0);
+    var out = (Object.getOwnPropertyNames(this.first).length > 0) &&
+      (Object.getOwnPropertyNames(this.C).length > 0) &&
+      (Object.getOwnPropertyNames(this.IT).length > 0) &&
+      (Object.getOwnPropertyNames(this.anno).length > 0) &&
+      (Object.getOwnPropertyNames(this.tre).length > 0) &&
+      (Object.getOwnPropertyNames(this.nove).length > 0);
+
+    return out;
   }
 
 }
