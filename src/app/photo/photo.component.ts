@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import * as Tesseract from 'tesseract.js';
 
 @Component({
   selector: 'app-photo',
@@ -109,8 +110,10 @@ export class PhotoComponent implements OnInit {
 
       image = testCanvas.toDataURL('image/jpeg', rapp);
 
-      component.analyzeImage(image).then(text => {
-        console.log(text[0]);
+      //component.analyzeImage(image).then(text => {
+      Tesseract.recognize(image).then(result => {
+        var text = [result.text.replace(/(\r\n|\n|\r)/gm, "")];
+        console.log(text);
         //console.log(rest);
         //var re = /^.*([A-Z]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)(.)(I|\||l|\\|\/|i|1|J|\[|\]|j)(.{2})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{4})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{8}).*$/;
         var out = re.test(text[0]);
@@ -118,7 +121,7 @@ export class PhotoComponent implements OnInit {
         var out2 = re2.test(text[0]);
         var out3 = re3.test(text[0]);
         var out4 = re4.test(text[0]);
-        console.log(text + " " + out + " 1:" + out1 + " 2:" + out2 + " 3:" + out3 + " 1:" + out4);
+        console.log(text + " " + out + " 1:" + out1 + " 2:" + out2 + " 3:" + out3 + " 4:" + out4);
 
         if (out1) {
           let match = re1.exec(text[0]);
@@ -171,43 +174,63 @@ export class PhotoComponent implements OnInit {
         console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
         if (component.gotIt()) {
           console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
+
           var max = Math.max.apply(null, Object.keys(component.first).map(function (x) { return component.first[x] }));
           var maxFirst = (Object.keys(component.first).filter(function (x) { return component.first[x] == max; })[0]);
+          let minmax = max;
 
           max = Math.max.apply(null, Object.keys(component.C).map(function (x) { return component.C[x] }));
           var maxC = (Object.keys(component.C).filter(function (x) { return component.C[x] == max; })[0]);
+          if (max < minmax) {
+            minmax = max;
+          }
 
           max = Math.max.apply(null, Object.keys(component.IT).map(function (x) { return component.IT[x] }));
           var maxIT = (Object.keys(component.IT).filter(function (x) { return component.IT[x] == max; })[0]);
+          if (max < minmax) {
+            minmax = max;
+          }
 
           max = Math.max.apply(null, Object.keys(component.anno).map(function (x) { return component.anno[x] }));
           var maxAnno = (Object.keys(component.anno).filter(function (x) { return component.anno[x] == max; })[0]);
+          if (max < minmax) {
+            minmax = max;
+          }
 
           max = Math.max.apply(null, Object.keys(component.tre).map(function (x) { return component.tre[x] }));
           var maxTre = (Object.keys(component.tre).filter(function (x) { return component.tre[x] == max; })[0]);
+          if (max < minmax) {
+            minmax = max;
+          }
 
           max = Math.max.apply(null, Object.keys(component.nove).map(function (x) { return component.nove[x] }));
           var maxNove = (Object.keys(component.nove).filter(function (x) { return component.nove[x] == max; })[0]);
 
-          let nuovo =  maxFirst+"|"+maxC+"|"+maxIT+"|"+maxAnno+"|"+maxTre+"|"+maxNove;
+          let nuovo = maxFirst + "|" + maxC + "|" + maxIT + "|" + maxAnno + "|" + maxTre + "|" + maxNove;
           console.log(nuovo.toUpperCase());
           component.printLog(nuovo.toUpperCase());
           const button = document.getElementsByTagName('button')[0];
-          button.click();
+          if (minmax < 3) {
+            component.cercaCodice();
+          } else {
+            button.click();
+          }
 
-        }else {
-          setTimeout(() => component.cercaCodice(), 3000);
+
+        } else {
+          //setTimeout(() => component.cercaCodice(), 3000);
+          component.cercaCodice();
         }
 
-       /* if (out) {
-          var nuovo = text[0].replace(re, "$1|C|IT|$7|$9|$11");
-          console.log(nuovo.toUpperCase());
-          component.printLog(nuovo.toUpperCase());
-          const button = document.getElementsByTagName('button')[0];
-          button.click();
-        } else {
-          setTimeout(() => component.cercaCodice(), 3000);
-        }*/
+        /* if (out) {
+           var nuovo = text[0].replace(re, "$1|C|IT|$7|$9|$11");
+           console.log(nuovo.toUpperCase());
+           component.printLog(nuovo.toUpperCase());
+           const button = document.getElementsByTagName('button')[0];
+           button.click();
+         } else {
+           setTimeout(() => component.cercaCodice(), 3000);
+         }*/
 
 
       });
