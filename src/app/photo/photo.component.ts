@@ -114,6 +114,7 @@ export class PhotoComponent implements OnInit {
       Tesseract.recognize(image).then(result => {
         var text = [result.text.replace(/(\r\n|\n|\r)/gm, "")];
         console.log(text);
+        component.printLog(text[0]);
         //console.log(rest);
         //var re = /^.*([A-Z]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)(.)(I|\||l|\\|\/|i|1|J|\[|\]|j)(.{2})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{4})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{8}).*$/;
         var out = re.test(text[0]);
