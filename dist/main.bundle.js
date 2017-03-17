@@ -213,7 +213,7 @@ var PhotoComponent = (function () {
             context.drawImage(video, 0, 0);
         }
         //console.log(size*rapp);
-        var image = canvas.toDataURL('image/jpeg', 1);
+        var image = canvas.toDataURL('image/png');
         var testCanvas = document.getElementById('testCanvas');
         var img = new Image;
         img.src = image;
@@ -223,11 +223,12 @@ var PhotoComponent = (function () {
             testCanvas.width = w;
             testCanvas.height = h;
             testCanvas.getContext('2d').drawImage(img, img.width * component.rettangolo.x, img.height * component.rettangolo.y, w, h, 0, 0, w, h);
-            var size = component.dataURItoBlob(testCanvas.toDataURL('image/jpeg', 1)).size;
-            var rapp = 4194304 / size;
+            //const size = component.dataURItoBlob(testCanvas.toDataURL('image/jpeg', 1)).size;
+            //var rapp = 4194304 / size;
+            //rapp=1;
             //this.log += size + " " + rapp;
-            rapp = Math.min(rapp, 1);
-            image = testCanvas.toDataURL('image/jpeg', rapp);
+            //rapp = Math.min(rapp, 1);
+            image = testCanvas.toDataURL('image/png');
             //component.analyzeImage(image).then(text => {
             __WEBPACK_IMPORTED_MODULE_1_tesseract_js__["recognize"](image).then(function (result) {
                 var text = [result.text.replace(/(\r\n|\n|\r)/gm, "")];

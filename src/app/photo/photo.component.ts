@@ -90,7 +90,7 @@ export class PhotoComponent implements OnInit {
     }
 
     //console.log(size*rapp);
-    var image = canvas.toDataURL('image/jpeg', 1);
+    var image = canvas.toDataURL('image/png');
     const testCanvas = <any>document.getElementById('testCanvas');
     var img = new Image;
     img.src = image;
@@ -103,12 +103,13 @@ export class PhotoComponent implements OnInit {
       testCanvas.getContext('2d').drawImage(img, img.width * component.rettangolo.x, img.height * component.rettangolo.y,
         w, h,
         0, 0, w, h);
-      const size = component.dataURItoBlob(testCanvas.toDataURL('image/jpeg', 1)).size;
-      var rapp = 4194304 / size;
+      //const size = component.dataURItoBlob(testCanvas.toDataURL('image/jpeg', 1)).size;
+      //var rapp = 4194304 / size;
+      //rapp=1;
       //this.log += size + " " + rapp;
-      rapp = Math.min(rapp, 1);
+      //rapp = Math.min(rapp, 1);
 
-      image = testCanvas.toDataURL('image/jpeg', rapp);
+      image = testCanvas.toDataURL('image/png');
 
       //component.analyzeImage(image).then(text => {
       Tesseract.recognize(image).then(result => {
