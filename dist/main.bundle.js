@@ -318,37 +318,51 @@ var PhotoComponent = (function () {
             component.addNove(novematch);
         }
         console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
-        if (component.gotIt() && !component.found) {
-            console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
-            var names = ["first", "C", "IT", "anno", "tre", "nove"];
-            var nuovo_1 = "";
-            names.forEach(function (name) {
-                var max = Math.max.apply(null, Object.keys(component[name]).map(function (x) { return component[name][x]; }));
-                var maxName = (Object.keys(component[name]).filter(function (x) { return component[name][x] == max; })[0]);
-                if (name != "nove") {
-                    nuovo_1 += maxName + "|";
-                }
-                else {
-                    nuovo_1 += maxName;
-                }
-            });
-            nuovo_1 += " tesseract: " + component.calls.tesseract + " api: " + component.calls.api;
-            console.log(nuovo_1.toUpperCase());
-            component.printLog(nuovo_1.toUpperCase());
-            component.printTime();
-            component.found = true;
-            var button = document.getElementsByTagName('button')[0];
-            button.click();
-        }
-        else {
-            //setTimeout(() => component.cercaCodice(), 3000);
-            if (chiamante == "tesseract") {
-                component.cercaCodice(chiamante);
-                component.calls.tesseract++;
+        if (!component.found) {
+            if (component.gotIt()) {
+                console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
+                var names = ["first", "C", "IT", "anno", "tre", "nove"];
+                var nuovo_1 = "";
+                names.forEach(function (name) {
+                    var max = Math.max.apply(null, Object.keys(component[name]).map(function (x) { return component[name][x]; }));
+                    var maxName = (Object.keys(component[name]).filter(function (x) { return component[name][x] == max; })[0]);
+                    if (name != "nove") {
+                        nuovo_1 += maxName + "|";
+                    }
+                    else {
+                        nuovo_1 += maxName;
+                    }
+                });
+                nuovo_1 += " tesseract: " + component.calls.tesseract + " api: " + component.calls.api;
+                console.log(nuovo_1.toUpperCase());
+                component.printLog(nuovo_1.toUpperCase());
+                component.printTime();
+                component.found = true;
+                var button = document.getElementsByTagName('button')[0];
+                button.click();
             }
-            if (chiamante == "API") {
-                setTimeout(function () { component.cercaCodice(chiamante); }, 500);
-                component.calls.api++;
+            else {
+                var names = ["first", "C", "IT", "anno", "tre", "nove"];
+                var nuovo_2 = "";
+                names.forEach(function (name) {
+                    if (Object.getOwnPropertyNames(component[name]).length > 0) {
+                        var max = Math.max.apply(null, Object.keys(component[name]).map(function (x) { return component[name][x]; }));
+                        var maxName = (Object.keys(component[name]).filter(function (x) { return component[name][x] == max; })[0]);
+                        nuovo_2 += maxName + " " + max + " ";
+                    }
+                });
+                nuovo_2 += " tesseract: " + component.calls.tesseract + " api: " + component.calls.api;
+                console.log(nuovo_2.toUpperCase());
+                component.printLog(nuovo_2.toUpperCase());
+                //setTimeout(() => component.cercaCodice(), 3000);
+                if (chiamante == "tesseract") {
+                    component.cercaCodice(chiamante);
+                    component.calls.tesseract++;
+                }
+                if (chiamante == "API") {
+                    setTimeout(function () { component.cercaCodice(chiamante); }, 500);
+                    component.calls.api++;
+                }
             }
         }
     };

@@ -24,7 +24,7 @@ export class PhotoComponent implements OnInit {
   tre = {};
   nove = {};
 
-  calls={ tesseract: null, api: null};
+  calls = { tesseract: null, api: null };
 
   found = false;
 
@@ -41,8 +41,8 @@ export class PhotoComponent implements OnInit {
     this.nove = {};
     this.printTime();
 
-    this.calls.tesseract=1;
-    this.calls.api=1;
+    this.calls.tesseract = 1;
+    this.calls.api = 1;
     this.found = false;
     this.cercaCodice("");
 
@@ -91,13 +91,13 @@ export class PhotoComponent implements OnInit {
       //component.analyzeImage(image).then(text => {
       if (chiamante == "tesseract" || chiamante == "") {
         console.log(new Date());
-        Tesseract.recognize(image).progress(prog=>{
+        Tesseract.recognize(image).progress(prog => {
           //console.log(prog);
         })
-        .then(result => {
-          var text = [result.text.replace(/(\r\n|\n|\r)/gm, "")];
-          component.analisiStringa(text, "tesseract");
-        });
+          .then(result => {
+            var text = [result.text.replace(/(\r\n|\n|\r)/gm, "")];
+            component.analisiStringa(text, "tesseract");
+          });
 
       }
 
@@ -200,7 +200,7 @@ export class PhotoComponent implements OnInit {
         }
       }
       component.addNove(novematch);
-    }else if(out4plus){
+    } else if (out4plus) {
       let match = re4plus.exec(text[0]);
       let trematch = match[2];
       let novematch = match[4];
@@ -211,39 +211,55 @@ export class PhotoComponent implements OnInit {
     }
 
     console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
-    if (component.gotIt() && !component.found) {
-      console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
-     
-      const names = ["first", "C", "IT","anno", "tre", "nove"];
-      let nuovo="";
-      names.forEach(name=>{
-        var max = Math.max.apply(null, Object.keys(component[name]).map(function (x) { return component[name][x] }));
-        var maxName = (Object.keys(component[name]).filter(function (x) { return component[name][x] == max; })[0]);
-        if(name!="nove"){
-          nuovo+=maxName+"|";
-        }else{
-          nuovo+=maxName;
-        }
-        
-      });
-      nuovo+=" tesseract: "+component.calls.tesseract+" api: "+component.calls.api;
-     
+    if (!component.found) {
+      if (component.gotIt()) {
+        console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
 
-      console.log(nuovo.toUpperCase());
-      component.printLog(nuovo.toUpperCase());
-      component.printTime();
-      component.found = true;
-      const button = document.getElementsByTagName('button')[0];
-      button.click();
-    } else {
-      //setTimeout(() => component.cercaCodice(), 3000);
-      if (chiamante == "tesseract") {
-        component.cercaCodice(chiamante);
-        component.calls.tesseract++;
-      }
-      if (chiamante == "API") {
-        setTimeout(() => { component.cercaCodice(chiamante); }, 500);
-        component.calls.api++;
+        const names = ["first", "C", "IT", "anno", "tre", "nove"];
+        let nuovo = "";
+        names.forEach(name => {
+          var max = Math.max.apply(null, Object.keys(component[name]).map(function (x) { return component[name][x] }));
+          var maxName = (Object.keys(component[name]).filter(function (x) { return component[name][x] == max; })[0]);
+          if (name != "nove") {
+            nuovo += maxName + "|";
+          } else {
+            nuovo += maxName;
+          }
+
+        });
+        nuovo += " tesseract: " + component.calls.tesseract + " api: " + component.calls.api;
+
+
+        console.log(nuovo.toUpperCase());
+        component.printLog(nuovo.toUpperCase());
+        component.printTime();
+        component.found = true;
+        const button = document.getElementsByTagName('button')[0];
+        button.click();
+      } else {
+        const names = ["first", "C", "IT", "anno", "tre", "nove"];
+        let nuovo = "";
+        names.forEach(name => {
+          if (Object.getOwnPropertyNames(component[name]).length > 0) {
+            var max = Math.max.apply(null, Object.keys(component[name]).map(function (x) { return component[name][x] }));
+            var maxName = (Object.keys(component[name]).filter(function (x) { return component[name][x] == max; })[0]);
+            nuovo += maxName + " " + max + " ";
+          }
+
+        });
+        nuovo += " tesseract: " + component.calls.tesseract + " api: " + component.calls.api;
+        console.log(nuovo.toUpperCase());
+        component.printLog(nuovo.toUpperCase());
+
+        //setTimeout(() => component.cercaCodice(), 3000);
+        if (chiamante == "tesseract") {
+          component.cercaCodice(chiamante);
+          component.calls.tesseract++;
+        }
+        if (chiamante == "API") {
+          setTimeout(() => { component.cercaCodice(chiamante); }, 500);
+          component.calls.api++;
+        }
       }
     }
 
@@ -478,7 +494,7 @@ export class PhotoComponent implements OnInit {
 
     let minmax = 1;
     if (out) {
-      
+
       var max = Math.max.apply(null, Object.keys(first).map(function (x) { return first[x] }));
       minmax = max;
 
