@@ -11,18 +11,20 @@ export class PhotoComponent implements OnInit {
   description = "no description";
   enableCapture = false;
   log = "";
-  faces = {};
-  faceToPerson = {};
+  //faces = {};
+  //faceToPerson = {};
   orizzontale = true;
   rettangolo = { x: (1 - 1 / 1.6) / 2, y: (1 - 1 / 8) / 2, w: 1 / 1.6, h: 1 / 12 };
-  bright = 0.5;
-  contrast = 0.5;
+  //bright = 0.5;
+  //contrast = 0.5;
   first = {};
   C = {};
   IT = {};
   anno = {};
   tre = {};
   nove = {};
+
+  calls={ tesseract: null, api: null};
 
   found = false;
 
@@ -38,6 +40,9 @@ export class PhotoComponent implements OnInit {
     this.tre = {};
     this.nove = {};
     this.printTime();
+
+    this.calls.tesseract=1;
+    this.calls.api=1;
     this.found = false;
     this.cercaCodice("");
 
@@ -136,6 +141,9 @@ export class PhotoComponent implements OnInit {
     const rest4 = start + anno + pipe + tre + pipe + nove + end;
     const re4 = new RegExp(rest4);
 
+    const rest4plus = start + pipe + tre + pipe + nove + end;
+    const re4plus = new RegExp(rest4plus);
+
     console.log(text);
     //component.printLog(text[0]);
 
@@ -144,7 +152,8 @@ export class PhotoComponent implements OnInit {
     var out2 = re2.test(text[0]);
     var out3 = re3.test(text[0]);
     var out4 = re4.test(text[0]);
-    console.log(text + " " + out + " 1:" + out1 + " 2:" + out2 + " 3:" + out3 + " 4:" + out4);
+    var out4plus = re4plus.test(text[0]);
+    console.log(text + " " + out + " 1:" + out1 + " 2:" + out2 + " 3:" + out3 + " 4:" + out4 + " 4+:" + out4plus);
 
     if (out1) {
       let match = re1.exec(text[0]);
@@ -191,6 +200,14 @@ export class PhotoComponent implements OnInit {
         }
       }
       component.addNove(novematch);
+    }else if(out4plus){
+      let match = re4plus.exec(text[0]);
+      let trematch = match[2];
+      let novematch = match[4];
+      if (!out3) {
+        component.addTre(trematch);
+      }
+      component.addNove(novematch);
     }
 
     console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
@@ -209,6 +226,7 @@ export class PhotoComponent implements OnInit {
         }
         
       });
+      nuovo+=" tesseract: "+component.calls.tesseract+" api: "+component.calls.api;
      
 
       console.log(nuovo.toUpperCase());
@@ -221,9 +239,11 @@ export class PhotoComponent implements OnInit {
       //setTimeout(() => component.cercaCodice(), 3000);
       if (chiamante == "tesseract") {
         component.cercaCodice(chiamante);
+        component.calls.tesseract++;
       }
       if (chiamante == "API") {
         setTimeout(() => { component.cercaCodice(chiamante); }, 500);
+        component.calls.api++;
       }
     }
 

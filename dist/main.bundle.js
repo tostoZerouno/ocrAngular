@@ -150,18 +150,19 @@ var PhotoComponent = (function () {
         this.description = "no description";
         this.enableCapture = false;
         this.log = "";
-        this.faces = {};
-        this.faceToPerson = {};
+        //faces = {};
+        //faceToPerson = {};
         this.orizzontale = true;
         this.rettangolo = { x: (1 - 1 / 1.6) / 2, y: (1 - 1 / 8) / 2, w: 1 / 1.6, h: 1 / 12 };
-        this.bright = 0.5;
-        this.contrast = 0.5;
+        //bright = 0.5;
+        //contrast = 0.5;
         this.first = {};
         this.C = {};
         this.IT = {};
         this.anno = {};
         this.tre = {};
         this.nove = {};
+        this.calls = { tesseract: null, api: null };
         this.found = false;
     }
     PhotoComponent.prototype.onClick = function () {
@@ -172,6 +173,8 @@ var PhotoComponent = (function () {
         this.tre = {};
         this.nove = {};
         this.printTime();
+        this.calls.tesseract = 1;
+        this.calls.api = 1;
         this.found = false;
         this.cercaCodice("");
     };
@@ -248,6 +251,8 @@ var PhotoComponent = (function () {
         var re3 = new RegExp(rest3);
         var rest4 = start + anno + pipe + tre + pipe + nove + end;
         var re4 = new RegExp(rest4);
+        var rest4plus = start + pipe + tre + pipe + nove + end;
+        var re4plus = new RegExp(rest4plus);
         console.log(text);
         //component.printLog(text[0]);
         var out = re.test(text[0]);
@@ -255,7 +260,8 @@ var PhotoComponent = (function () {
         var out2 = re2.test(text[0]);
         var out3 = re3.test(text[0]);
         var out4 = re4.test(text[0]);
-        console.log(text + " " + out + " 1:" + out1 + " 2:" + out2 + " 3:" + out3 + " 4:" + out4);
+        var out4plus = re4plus.test(text[0]);
+        console.log(text + " " + out + " 1:" + out1 + " 2:" + out2 + " 3:" + out3 + " 4:" + out4 + " 4+:" + out4plus);
         if (out1) {
             var match = re1.exec(text[0]);
             var firstmatch = match[1];
@@ -302,6 +308,15 @@ var PhotoComponent = (function () {
             }
             component.addNove(novematch);
         }
+        else if (out4plus) {
+            var match = re4plus.exec(text[0]);
+            var trematch = match[2];
+            var novematch = match[4];
+            if (!out3) {
+                component.addTre(trematch);
+            }
+            component.addNove(novematch);
+        }
         console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
         if (component.gotIt() && !component.found) {
             console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
@@ -317,6 +332,7 @@ var PhotoComponent = (function () {
                     nuovo_1 += maxName;
                 }
             });
+            nuovo_1 += " tesseract: " + component.calls.tesseract + " api: " + component.calls.api;
             console.log(nuovo_1.toUpperCase());
             component.printLog(nuovo_1.toUpperCase());
             component.printTime();
@@ -328,9 +344,11 @@ var PhotoComponent = (function () {
             //setTimeout(() => component.cercaCodice(), 3000);
             if (chiamante == "tesseract") {
                 component.cercaCodice(chiamante);
+                component.calls.tesseract++;
             }
             if (chiamante == "API") {
                 setTimeout(function () { component.cercaCodice(chiamante); }, 500);
+                component.calls.api++;
             }
         }
     };
