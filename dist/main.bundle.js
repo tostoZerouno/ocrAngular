@@ -171,29 +171,18 @@ var PhotoComponent = (function () {
         this.anno = {};
         this.tre = {};
         this.nove = {};
-        var currentdate = new Date();
-        var datetime = "Last Sync: " + currentdate.getDate() + "/"
-            + (currentdate.getMonth() + 1) + "/"
-            + currentdate.getFullYear() + " @ "
-            + currentdate.getHours() + ":"
-            + currentdate.getMinutes() + ":"
-            + currentdate.getSeconds();
-        console.log(datetime);
+        this.printTime();
         this.found = false;
         this.cercaCodice("");
     };
     PhotoComponent.prototype.cercaCodice = function (chiamante) {
         var component = this;
-        //this.enableCapture = !(this.enableCapture);
         var video = document.getElementsByTagName('video')[0];
         var canvas = document.getElementById('canvas');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         var context = canvas.getContext('2d');
-        //canvas.getContext('2d').drawImage(video, 0, 0);
-        var count = 0;
         if (component.detectmob()) {
-            //var deg = Number(window.orientation);
             context.save();
             context.scale(1, -1);
             context.drawImage(video, 0, 0, canvas.width, -1 * canvas.height);
@@ -202,7 +191,6 @@ var PhotoComponent = (function () {
         else {
             context.drawImage(video, 0, 0);
         }
-        //console.log(size*rapp);
         var image = canvas.toDataURL('image/png');
         var testCanvas = document.getElementById('testCanvas');
         var img = new Image;
@@ -222,7 +210,11 @@ var PhotoComponent = (function () {
             var image2 = testCanvas.toDataURL('image/jpg', 1);
             //component.analyzeImage(image).then(text => {
             if (chiamante == "tesseract" || chiamante == "") {
-                __WEBPACK_IMPORTED_MODULE_1_tesseract_js__["recognize"](image).then(function (result) {
+                console.log(new Date());
+                __WEBPACK_IMPORTED_MODULE_1_tesseract_js__["recognize"](image).progress(function (prog) {
+                    //console.log(prog);
+                })
+                    .then(function (result) {
                     var text = [result.text.replace(/(\r\n|\n|\r)/gm, "")];
                     component.analisiStringa(text, "tesseract");
                 });
@@ -236,6 +228,7 @@ var PhotoComponent = (function () {
     };
     PhotoComponent.prototype.analisiStringa = function (text, chiamante) {
         var component = this;
+        console.log("analisi " + chiamante);
         var start = "^.*";
         var first = "([A-Z]{3})";
         var pipe = "(I|\\||l|\\\\|\\/|i|1|J|\\[|\\]|j|\\s\\')";
@@ -256,9 +249,7 @@ var PhotoComponent = (function () {
         var rest4 = start + anno + pipe + tre + pipe + nove + end;
         var re4 = new RegExp(rest4);
         console.log(text);
-        component.printLog(text[0]);
-        //console.log(rest);
-        //var re = /^.*([A-Z]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)(.)(I|\||l|\\|\/|i|1|J|\[|\]|j)(.{2})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{4})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{8}).*$/;
+        //component.printLog(text[0]);
         var out = re.test(text[0]);
         var out1 = re1.test(text[0]);
         var out2 = re2.test(text[0]);
@@ -312,62 +303,26 @@ var PhotoComponent = (function () {
             component.addNove(novematch);
         }
         console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
-        if (component.gotIt()) {
+        if (component.gotIt() && !component.found) {
             console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
-            var max = Math.max.apply(null, Object.keys(component.first).map(function (x) { return component.first[x]; }));
-            var maxFirst = (Object.keys(component.first).filter(function (x) { return component.first[x] == max; })[0]);
-            var minmax = max;
-            max = Math.max.apply(null, Object.keys(component.C).map(function (x) { return component.C[x]; }));
-            var maxC = (Object.keys(component.C).filter(function (x) { return component.C[x] == max; })[0]);
-            if (max < minmax) {
-                minmax = max;
-            }
-            max = Math.max.apply(null, Object.keys(component.IT).map(function (x) { return component.IT[x]; }));
-            var maxIT = (Object.keys(component.IT).filter(function (x) { return component.IT[x] == max; })[0]);
-            if (max < minmax) {
-                minmax = max;
-            }
-            max = Math.max.apply(null, Object.keys(component.anno).map(function (x) { return component.anno[x]; }));
-            var maxAnno = (Object.keys(component.anno).filter(function (x) { return component.anno[x] == max; })[0]);
-            if (max < minmax) {
-                minmax = max;
-            }
-            max = Math.max.apply(null, Object.keys(component.tre).map(function (x) { return component.tre[x]; }));
-            var maxTre = (Object.keys(component.tre).filter(function (x) { return component.tre[x] == max; })[0]);
-            if (max < minmax) {
-                minmax = max;
-            }
-            max = Math.max.apply(null, Object.keys(component.nove).map(function (x) { return component.nove[x]; }));
-            var maxNove = (Object.keys(component.nove).filter(function (x) { return component.nove[x] == max; })[0]);
-            if (max < minmax) {
-                minmax = max;
-            }
-            var nuovo = maxFirst + "|" + maxC + "|" + maxIT + "|" + maxAnno + "|" + maxTre + "|" + maxNove;
-            console.log(nuovo.toUpperCase());
-            component.printLog(nuovo.toUpperCase());
+            var names = ["first", "C", "IT", "anno", "tre", "nove"];
+            var nuovo_1 = "";
+            names.forEach(function (name) {
+                var max = Math.max.apply(null, Object.keys(component[name]).map(function (x) { return component[name][x]; }));
+                var maxName = (Object.keys(component[name]).filter(function (x) { return component[name][x] == max; })[0]);
+                if (name != "nove") {
+                    nuovo_1 += maxName + "|";
+                }
+                else {
+                    nuovo_1 += maxName;
+                }
+            });
+            console.log(nuovo_1.toUpperCase());
+            component.printLog(nuovo_1.toUpperCase());
+            component.printTime();
+            component.found = true;
             var button = document.getElementsByTagName('button')[0];
-            if (minmax < 2) {
-                if (chiamante == "tesseract") {
-                    component.cercaCodice(chiamante);
-                }
-                if (chiamante == "API") {
-                    setTimeout(function () { component.cercaCodice(chiamante); }, 3000);
-                }
-            }
-            else {
-                if (!component.found) {
-                    var currentdate = new Date();
-                    var datetime = "Last Sync: " + currentdate.getDate() + "/"
-                        + (currentdate.getMonth() + 1) + "/"
-                        + currentdate.getFullYear() + " @ "
-                        + currentdate.getHours() + ":"
-                        + currentdate.getMinutes() + ":"
-                        + currentdate.getSeconds();
-                    console.log(datetime);
-                    component.found = true;
-                    button.click();
-                }
-            }
+            button.click();
         }
         else {
             //setTimeout(() => component.cercaCodice(), 3000);
@@ -375,18 +330,9 @@ var PhotoComponent = (function () {
                 component.cercaCodice(chiamante);
             }
             if (chiamante == "API") {
-                setTimeout(function () { component.cercaCodice(chiamante); }, 3000);
+                setTimeout(function () { component.cercaCodice(chiamante); }, 500);
             }
         }
-        /* if (out) {
-           var nuovo = text[0].replace(re, "$1|C|IT|$7|$9|$11");
-           console.log(nuovo.toUpperCase());
-           component.printLog(nuovo.toUpperCase());
-           const button = document.getElementsByTagName('button')[0];
-           button.click();
-         } else {
-           setTimeout(() => component.cercaCodice(), 3000);
-         }*/
     };
     PhotoComponent.prototype.onResize = function () {
         var video = document.getElementsByTagName('video')[0];
@@ -414,7 +360,7 @@ var PhotoComponent = (function () {
         var out = "";
         return new Promise(function (resolve, reject) {
             _this.computerVision(blob).then(function (resp) {
-                _this.log = "";
+                //this.log = "";
                 var regions = resp['regions'];
                 if (regions.length > 0) {
                     console.log(regions[0]);
@@ -425,7 +371,7 @@ var PhotoComponent = (function () {
                         var warr = Object.keys(words).map(function (key) { return words[key]; });
                         warr.forEach(function (w) {
                             console.log(w.text);
-                            _this.log += w.text + "\n";
+                            //this.log += w.text + "\n";
                             out += w.text;
                         });
                     });
@@ -478,6 +424,12 @@ var PhotoComponent = (function () {
             if (video.height > 0) {
                 clearInterval(interval);
                 console.log("stop");
+                //FIXME come lo inizializzo?
+                var canvas = document.getElementById("canvas");
+                var context = canvas.getContext("2d");
+                context.drawImage(video, 0, 0);
+                var dataurl = canvas.toDataURL("image/png");
+                __WEBPACK_IMPORTED_MODULE_1_tesseract_js__["recognize"](dataurl);
             }
         }, 100);
     };
@@ -509,27 +461,6 @@ var PhotoComponent = (function () {
             return false;
         }
     };
-    /*setBright(value) {
-      console.log(value);
-      this.bright = value;
-      this.setVideoFilter();
-    }
-  
-    setContrast(value) {
-      console.log(value);
-      this.contrast = value;
-      this.setVideoFilter();
-  
-    }
-  
-    setVideoFilter() {
-      const video = <any>document.getElementsByTagName('video')[0];
-      video.setAttribute('style', 'filter:contrast(' + this.contrast + ') brightness(' + this.bright + ') grayscale(100%);' +
-        ' -webkit-filter:contrast(' + this.contrast + ') brightness(' + this.bright + ') grayscale(100%);' +
-        ' -moz-filter:contrast(' + this.contrast + ') brightness(' + this.bright + ') grayscale(100%)');
-  
-  
-    }*/
     PhotoComponent.prototype.setH = function (value) {
         this.clearCanvas();
         this.rettangolo.y = (1 - 1 / 12 * value) / 2;
@@ -541,6 +472,16 @@ var PhotoComponent = (function () {
         this.rettangolo.x = (1 - 1 / 1.6 * value) / 2;
         this.rettangolo.w = 1 / 1.6 * value;
         this.onResize();
+    };
+    PhotoComponent.prototype.printTime = function () {
+        var currentdate = new Date();
+        var datetime = "Last Sync: " + currentdate.getDate() + "/"
+            + (currentdate.getMonth() + 1) + "/"
+            + currentdate.getFullYear() + " @ "
+            + currentdate.getHours() + ":"
+            + currentdate.getMinutes() + ":"
+            + currentdate.getSeconds();
+        console.log(datetime);
     };
     PhotoComponent.prototype.printLog = function (text) {
         this.log = text;
@@ -577,14 +518,45 @@ var PhotoComponent = (function () {
         }
     };
     PhotoComponent.prototype.gotIt = function () {
+        var first = this.first;
+        var C = this.C;
+        var IT = this.IT;
+        var anno = this.anno;
+        var tre = this.tre;
+        var nove = this.nove;
         //console.log(Object.getOwnPropertyNames(this.first).length > 0);
-        var out = (Object.getOwnPropertyNames(this.first).length > 0) &&
-            (Object.getOwnPropertyNames(this.C).length > 0) &&
-            (Object.getOwnPropertyNames(this.IT).length > 0) &&
-            (Object.getOwnPropertyNames(this.anno).length > 0) &&
-            (Object.getOwnPropertyNames(this.tre).length > 0) &&
-            (Object.getOwnPropertyNames(this.nove).length > 0);
-        return out;
+        var out = (Object.getOwnPropertyNames(first).length > 0) &&
+            (Object.getOwnPropertyNames(C).length > 0) &&
+            (Object.getOwnPropertyNames(IT).length > 0) &&
+            (Object.getOwnPropertyNames(anno).length > 0) &&
+            (Object.getOwnPropertyNames(tre).length > 0) &&
+            (Object.getOwnPropertyNames(nove).length > 0);
+        var minmax = 1;
+        if (out) {
+            var max = Math.max.apply(null, Object.keys(first).map(function (x) { return first[x]; }));
+            minmax = max;
+            max = Math.max.apply(null, Object.keys(C).map(function (x) { return C[x]; }));
+            if (max < minmax) {
+                minmax = max;
+            }
+            max = Math.max.apply(null, Object.keys(IT).map(function (x) { return IT[x]; }));
+            if (max < minmax) {
+                minmax = max;
+            }
+            max = Math.max.apply(null, Object.keys(anno).map(function (x) { return anno[x]; }));
+            if (max < minmax) {
+                minmax = max;
+            }
+            max = Math.max.apply(null, Object.keys(tre).map(function (x) { return tre[x]; }));
+            if (max < minmax) {
+                minmax = max;
+            }
+            max = Math.max.apply(null, Object.keys(nove).map(function (x) { return nove[x]; }));
+            if (max < minmax) {
+                minmax = max;
+            }
+        }
+        return out && minmax > 1;
     };
     PhotoComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["V" /* Component */])({

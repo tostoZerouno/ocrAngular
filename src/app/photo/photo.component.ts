@@ -37,14 +37,7 @@ export class PhotoComponent implements OnInit {
     this.anno = {};
     this.tre = {};
     this.nove = {};
-    var currentdate = new Date();
-    var datetime = "Last Sync: " + currentdate.getDate() + "/"
-      + (currentdate.getMonth() + 1) + "/"
-      + currentdate.getFullYear() + " @ "
-      + currentdate.getHours() + ":"
-      + currentdate.getMinutes() + ":"
-      + currentdate.getSeconds();
-    console.log(datetime);
+    this.printTime();
     this.found = false;
     this.cercaCodice("");
 
@@ -53,28 +46,21 @@ export class PhotoComponent implements OnInit {
   cercaCodice(chiamante) {
     let component = this;
 
-    //this.enableCapture = !(this.enableCapture);
     const video = <any>document.getElementsByTagName('video')[0];
     const canvas = <any>document.getElementById('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     var context = canvas.getContext('2d');
-    //canvas.getContext('2d').drawImage(video, 0, 0);
-
-    var count = 0;
 
     if (component.detectmob()) {
-      //var deg = Number(window.orientation);
       context.save();
       context.scale(1, -1);
       context.drawImage(video, 0, 0, canvas.width, -1 * canvas.height);
       context.restore();
-
     } else {
       context.drawImage(video, 0, 0);
     }
 
-    //console.log(size*rapp);
     var image = canvas.toDataURL('image/png');
     const testCanvas = <any>document.getElementById('testCanvas');
     var img = new Image;
@@ -99,7 +85,11 @@ export class PhotoComponent implements OnInit {
 
       //component.analyzeImage(image).then(text => {
       if (chiamante == "tesseract" || chiamante == "") {
-        Tesseract.recognize(image).then(result => {
+        console.log(new Date());
+        Tesseract.recognize(image).progress(prog=>{
+          //console.log(prog);
+        })
+        .then(result => {
           var text = [result.text.replace(/(\r\n|\n|\r)/gm, "")];
           component.analisiStringa(text, "tesseract");
         });
@@ -119,6 +109,8 @@ export class PhotoComponent implements OnInit {
   analisiStringa(text, chiamante) {
 
     let component = this;
+
+    console.log("analisi " + chiamante);
 
     const start = "^.*";
     const first = "([A-Z]{3})";
@@ -145,9 +137,8 @@ export class PhotoComponent implements OnInit {
     const re4 = new RegExp(rest4);
 
     console.log(text);
-    component.printLog(text[0]);
-    //console.log(rest);
-    //var re = /^.*([A-Z]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)(.)(I|\||l|\\|\/|i|1|J|\[|\]|j)(.{2})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{4})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{3})(I|\||l|\\|\/|i|1|J|\[|\]|j)([0-9]{8}).*$/;
+    //component.printLog(text[0]);
+
     var out = re.test(text[0]);
     var out1 = re1.test(text[0]);
     var out2 = re2.test(text[0]);
@@ -188,7 +179,6 @@ export class PhotoComponent implements OnInit {
       }
       component.addTre(trematch);
     }
-
     if (out4) {
       let match = re4.exec(text[0]);
       let annomatch = match[1];
@@ -204,90 +194,38 @@ export class PhotoComponent implements OnInit {
     }
 
     console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
-    if (component.gotIt()) {
+    if (component.gotIt() && !component.found) {
       console.log(component.first, component.C, component.IT, component.anno, component.tre, component.nove);
+     
+      const names = ["first", "C", "IT","anno", "tre", "nove"];
+      let nuovo="";
+      names.forEach(name=>{
+        var max = Math.max.apply(null, Object.keys(component[name]).map(function (x) { return component[name][x] }));
+        var maxName = (Object.keys(component[name]).filter(function (x) { return component[name][x] == max; })[0]);
+        if(name!="nove"){
+          nuovo+=maxName+"|";
+        }else{
+          nuovo+=maxName;
+        }
+        
+      });
+     
 
-      var max = Math.max.apply(null, Object.keys(component.first).map(function (x) { return component.first[x] }));
-      var maxFirst = (Object.keys(component.first).filter(function (x) { return component.first[x] == max; })[0]);
-      let minmax = max;
-
-      max = Math.max.apply(null, Object.keys(component.C).map(function (x) { return component.C[x] }));
-      var maxC = (Object.keys(component.C).filter(function (x) { return component.C[x] == max; })[0]);
-      if (max < minmax) {
-        minmax = max;
-      }
-
-      max = Math.max.apply(null, Object.keys(component.IT).map(function (x) { return component.IT[x] }));
-      var maxIT = (Object.keys(component.IT).filter(function (x) { return component.IT[x] == max; })[0]);
-      if (max < minmax) {
-        minmax = max;
-      }
-
-      max = Math.max.apply(null, Object.keys(component.anno).map(function (x) { return component.anno[x] }));
-      var maxAnno = (Object.keys(component.anno).filter(function (x) { return component.anno[x] == max; })[0]);
-      if (max < minmax) {
-        minmax = max;
-      }
-
-      max = Math.max.apply(null, Object.keys(component.tre).map(function (x) { return component.tre[x] }));
-      var maxTre = (Object.keys(component.tre).filter(function (x) { return component.tre[x] == max; })[0]);
-      if (max < minmax) {
-        minmax = max;
-      }
-
-      max = Math.max.apply(null, Object.keys(component.nove).map(function (x) { return component.nove[x] }));
-      var maxNove = (Object.keys(component.nove).filter(function (x) { return component.nove[x] == max; })[0]);
-      if (max < minmax) {
-        minmax = max;
-      }
-
-      let nuovo = maxFirst + "|" + maxC + "|" + maxIT + "|" + maxAnno + "|" + maxTre + "|" + maxNove;
       console.log(nuovo.toUpperCase());
       component.printLog(nuovo.toUpperCase());
+      component.printTime();
+      component.found = true;
       const button = document.getElementsByTagName('button')[0];
-      if (minmax < 2) {
-        if (chiamante == "tesseract") {
-          component.cercaCodice(chiamante);
-        }
-        if (chiamante == "API") {
-          setTimeout(() => { component.cercaCodice(chiamante); }, 3000);
-        }
-      } else {
-        if (!component.found) {
-          var currentdate = new Date();
-          var datetime = "Last Sync: " + currentdate.getDate() + "/"
-            + (currentdate.getMonth() + 1) + "/"
-            + currentdate.getFullYear() + " @ "
-            + currentdate.getHours() + ":"
-            + currentdate.getMinutes() + ":"
-            + currentdate.getSeconds();
-          console.log(datetime);
-          component.found = true;
-          button.click();
-        }
-
-      }
-
-
+      button.click();
     } else {
       //setTimeout(() => component.cercaCodice(), 3000);
       if (chiamante == "tesseract") {
         component.cercaCodice(chiamante);
       }
       if (chiamante == "API") {
-        setTimeout(() => { component.cercaCodice(chiamante); }, 3000);
+        setTimeout(() => { component.cercaCodice(chiamante); }, 500);
       }
     }
-
-    /* if (out) {
-       var nuovo = text[0].replace(re, "$1|C|IT|$7|$9|$11");
-       console.log(nuovo.toUpperCase());
-       component.printLog(nuovo.toUpperCase());
-       const button = document.getElementsByTagName('button')[0];
-       button.click();
-     } else {
-       setTimeout(() => component.cercaCodice(), 3000);
-     }*/
 
   }
 
@@ -325,7 +263,7 @@ export class PhotoComponent implements OnInit {
 
     return new Promise((resolve, reject) => {
       this.computerVision(blob).then(resp => {
-        this.log = "";
+        //this.log = "";
         const regions = resp['regions'];
         if (regions.length > 0) {
           console.log(regions[0]);
@@ -336,7 +274,7 @@ export class PhotoComponent implements OnInit {
             var warr = Object.keys(words).map(function (key) { return words[key]; });
             warr.forEach(w => {
               console.log(w.text);
-              this.log += w.text + "\n";
+              //this.log += w.text + "\n";
               out += w.text;
             })
 
@@ -396,6 +334,13 @@ export class PhotoComponent implements OnInit {
       if (video.height > 0) {
         clearInterval(interval);
         console.log("stop");
+
+        //FIXME come lo inizializzo?
+        var canvas = <any>document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0);
+        var dataurl = canvas.toDataURL("image/png");
+        Tesseract.recognize(dataurl);
       }
     }, 100);
   }
@@ -432,27 +377,6 @@ export class PhotoComponent implements OnInit {
     }
   }
 
-  /*setBright(value) {
-    console.log(value);
-    this.bright = value;
-    this.setVideoFilter();
-  }
-
-  setContrast(value) {
-    console.log(value);
-    this.contrast = value;
-    this.setVideoFilter();
-
-  }
-
-  setVideoFilter() {
-    const video = <any>document.getElementsByTagName('video')[0];
-    video.setAttribute('style', 'filter:contrast(' + this.contrast + ') brightness(' + this.bright + ') grayscale(100%);' +
-      ' -webkit-filter:contrast(' + this.contrast + ') brightness(' + this.bright + ') grayscale(100%);' +
-      ' -moz-filter:contrast(' + this.contrast + ') brightness(' + this.bright + ') grayscale(100%)');
-
-
-  }*/
   setH(value) {
     this.clearCanvas();
     this.rettangolo.y = (1 - 1 / 12 * value) / 2;
@@ -469,6 +393,16 @@ export class PhotoComponent implements OnInit {
 
   }
 
+  printTime() {
+    var currentdate = new Date();
+    var datetime = "Last Sync: " + currentdate.getDate() + "/"
+      + (currentdate.getMonth() + 1) + "/"
+      + currentdate.getFullYear() + " @ "
+      + currentdate.getHours() + ":"
+      + currentdate.getMinutes() + ":"
+      + currentdate.getSeconds();
+    console.log(datetime);
+  }
   printLog(text) {
     this.log = text;
   }
@@ -508,15 +442,53 @@ export class PhotoComponent implements OnInit {
   }
 
   gotIt() {
+    let first = this.first;
+    let C = this.C;
+    let IT = this.IT;
+    let anno = this.anno;
+    let tre = this.tre;
+    let nove = this.nove;
     //console.log(Object.getOwnPropertyNames(this.first).length > 0);
-    var out = (Object.getOwnPropertyNames(this.first).length > 0) &&
-      (Object.getOwnPropertyNames(this.C).length > 0) &&
-      (Object.getOwnPropertyNames(this.IT).length > 0) &&
-      (Object.getOwnPropertyNames(this.anno).length > 0) &&
-      (Object.getOwnPropertyNames(this.tre).length > 0) &&
-      (Object.getOwnPropertyNames(this.nove).length > 0);
+    var out = (Object.getOwnPropertyNames(first).length > 0) &&
+      (Object.getOwnPropertyNames(C).length > 0) &&
+      (Object.getOwnPropertyNames(IT).length > 0) &&
+      (Object.getOwnPropertyNames(anno).length > 0) &&
+      (Object.getOwnPropertyNames(tre).length > 0) &&
+      (Object.getOwnPropertyNames(nove).length > 0);
 
-    return out;
+    let minmax = 1;
+    if (out) {
+      
+      var max = Math.max.apply(null, Object.keys(first).map(function (x) { return first[x] }));
+      minmax = max;
+
+      max = Math.max.apply(null, Object.keys(C).map(function (x) { return C[x] }));
+      if (max < minmax) {
+        minmax = max;
+      }
+
+      max = Math.max.apply(null, Object.keys(IT).map(function (x) { return IT[x] }));
+      if (max < minmax) {
+        minmax = max;
+      }
+
+      max = Math.max.apply(null, Object.keys(anno).map(function (x) { return anno[x] }));
+      if (max < minmax) {
+        minmax = max;
+      }
+
+      max = Math.max.apply(null, Object.keys(tre).map(function (x) { return tre[x] }));
+      if (max < minmax) {
+        minmax = max;
+      }
+
+      max = Math.max.apply(null, Object.keys(nove).map(function (x) { return nove[x] }));
+      if (max < minmax) {
+        minmax = max;
+      }
+    }
+
+    return out && minmax > 1;
   }
 
 }
